@@ -1,0 +1,1 @@
+"""SmartPay backend package."""

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartPay AI Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>SmartPay AI — Demo</h1>
+      <p>
+        Enter your finance summary below and click <strong>Analyze</strong> to
+        see the multi-agent AI insights.
+      </p>
+
+      <form id="analyzeForm">
+        <label>
+          Income
+          <input type="number" id="income" value="30000" required />
+        </label>
+
+        <label>
+          Total Spend
+          <input type="number" id="totalSpend" value="21000" required />
+        </label>
+
+        <label>
+          Savings Goal
+          <input type="number" id="goal" value="50000" required />
+        </label>
+
+        <label>
+          Categories (JSON)
+          <textarea id="categories" rows="6">
+{
+  "rent": 40,
+  "grocery": 35,
+  "food": 15,
+  "shopping": 10
+}
+          </textarea>
+        </label>
+
+        <button type="submit">Analyze</button>
+      </form>
+
+      <section>
+        <h2>Result</h2>
+        <pre id="result">No result yet.</pre>
+      </section>
+
+      <footer>
+        <p>
+          Run the backend API with <code>python backend/app.py</code> and then
+          open this page via a local server (e.g. <code>python -m http.server</code>)
+          to avoid browser CORS restrictions.
+        </p>
+      </footer>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
