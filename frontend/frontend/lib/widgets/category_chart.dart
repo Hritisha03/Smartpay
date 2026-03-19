@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CategorySpendingChart extends StatelessWidget {
   final Map<String, double> categoryData;
 
-  const CategorySpendingChart({Key? key, required this.categoryData}) : super(key: key);
+  const CategorySpendingChart({super.key, required this.categoryData});
 
   @override
   Widget build(BuildContext context) {

@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'ai_report_screen.dart';
 import '../models/user_expense_data.dart';
 
-/// Multi-user input screen for adding multiple users and their expenses.
 class MultiUserInputScreen extends StatefulWidget {
-  const MultiUserInputScreen({Key? key}) : super(key: key);
+  const MultiUserInputScreen({super.key});
 
   @override
   State<MultiUserInputScreen> createState() => _MultiUserInputScreenState();
@@ -14,17 +13,17 @@ class MultiUserInputScreen extends StatefulWidget {
 class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   final List<UserExpenseData> users = [
     UserExpenseData(
-      name: 'Alice',
+      name: 'Alok',
       income: 45000,
       expenses: {'rent': 15000, 'food': 5000, 'shopping': 3000},
     ),
     UserExpenseData(
-      name: 'Bob',
+      name: 'Siba',
       income: 60000,
       expenses: {'rent': 20000, 'food': 8000, 'shopping': 5000},
     ),
     UserExpenseData(
-      name: 'Charlie',
+      name: 'Hritisha',
       income: 55000,
       expenses: {'rent': 18000, 'food': 10000, 'shopping': 12000},
     ),
@@ -33,99 +32,152 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA), // 🔥 modern bg
       appBar: AppBar(
         title: const Text('Multi-User Expenses'),
-        backgroundColor: Colors.deepPurple[700],
+        backgroundColor: Colors.deepPurple,
+        elevation: 0,
       ),
       body: ListView.builder(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         itemCount: users.length,
-        itemBuilder: (context, index) => _buildUserCard(users[index], index),
+        itemBuilder: (context, index) =>
+            _buildUserCard(users[index], index),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addUser,
-        backgroundColor: Colors.deepPurple[700],
-        child: Icon(Icons.add),
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add),
       ),
     );
   }
 
+  // 🔥 UPDATED CARD UI
   Widget _buildUserCard(UserExpenseData user, int index) {
-    final totalExpense = user.expenses.values.fold<double>(
-      0,
-      (prev, curr) => prev + curr,
-    );
+    final totalExpense =
+        user.expenses.values.fold<double>(0, (p, c) => p + c);
     final savings = user.income - totalExpense;
 
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      elevation: 4,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          )
+        ],
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 👤 HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '👤 ${user.name}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.deepPurple[100],
+                      child: const Icon(Icons.person,
+                          color: Colors.deepPurple),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      user.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 PopupMenuButton(
                   itemBuilder: (context) => [
                     PopupMenuItem(
-                      child: Text('Edit'),
+                      child: const Text('Edit'),
                       onTap: () => _editUser(index),
                     ),
                     PopupMenuItem(
-                      child: Text('Delete'),
+                      child: const Text('Delete'),
                       onTap: () => _deleteUser(index),
                     ),
                   ],
                 ),
               ],
             ),
-            SizedBox(height: 12),
+
+            const SizedBox(height: 16),
+
+            // 💰 METRICS
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMetric('💰 Income', '₹${user.income}'),
-                _buildMetric('📊 Expenses', '₹${totalExpense.toStringAsFixed(0)}'),
+                _buildMetric('Income', '₹${user.income}'),
                 _buildMetric(
-                  '💵 Savings',
+                    'Expenses', '₹${totalExpense.toStringAsFixed(0)}'),
+                _buildMetric(
+                  'Savings',
                   '₹${savings.toStringAsFixed(0)}',
                   color: savings > 0 ? Colors.green : Colors.red,
                 ),
               ],
             ),
-            SizedBox(height: 12),
+
+            const SizedBox(height: 16),
+
+            // 📊 BREAKDOWN
             Text(
-              'Breakdown:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              'Breakdown',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
             ),
-            SizedBox(height: 8),
-            ...user.expenses.entries.map((e) => Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('  • ${e.key}'),
-                  Text('₹${e.value.toStringAsFixed(0)}'),
-                ],
+            const SizedBox(height: 8),
+
+            ...user.expenses.entries.map(
+              (e) => Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(e.key.toUpperCase()),
+                    Text('₹${e.value.toStringAsFixed(0)}'),
+                  ],
+                ),
               ),
-            )),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => _viewAIReport(user),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple[700],
-                minimumSize: Size(double.infinity, 40),
+            ),
+
+            const SizedBox(height: 14),
+
+            // 🔥 BUTTON
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _viewAIReport(user),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('View AI Report'),
               ),
-              child: Text('View AI Report'),
             ),
           ],
         ),
@@ -137,16 +189,14 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(label,
+            style:
+                const TextStyle(fontSize: 12, color: Colors.grey)),
         Text(
           value,
           style: TextStyle(
-            fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: color,
+            color: color ?? Colors.black,
           ),
         ),
       ],
@@ -157,9 +207,7 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
     showDialog(
       context: context,
       builder: (context) => _UserInputDialog(
-        onSave: (user) {
-          setState(() => users.add(user));
-        },
+        onSave: (user) => setState(() => users.add(user)),
       ),
     );
   }
@@ -169,9 +217,7 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
       context: context,
       builder: (context) => _UserInputDialog(
         initialUser: users[index],
-        onSave: (user) {
-          setState(() => users[index] = user);
-        },
+        onSave: (user) => setState(() => users[index] = user),
       ),
     );
   }
@@ -190,18 +236,20 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   }
 }
 
+// 🔥 USER INPUT DIALOG (unchanged logic, just slight UI polish)
 class _UserInputDialog extends StatefulWidget {
   final UserExpenseData? initialUser;
   final Function(UserExpenseData) onSave;
 
   const _UserInputDialog({
-    Key? key,
+    super.key,
     this.initialUser,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
-  State<_UserInputDialog> createState() => _UserInputDialogState();
+  State<_UserInputDialog> createState() =>
+      _UserInputDialogState();
 }
 
 class _UserInputDialogState extends State<_UserInputDialog> {
@@ -212,17 +260,14 @@ class _UserInputDialogState extends State<_UserInputDialog> {
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(
-      text: widget.initialUser?.name ?? '',
-    );
+    nameController =
+        TextEditingController(text: widget.initialUser?.name ?? '');
     incomeController = TextEditingController(
-      text: (widget.initialUser?.income ?? 0).toStringAsFixed(0),
-    );
+        text: (widget.initialUser?.income ?? 0).toStringAsFixed(0));
 
     for (final entry in (widget.initialUser?.expenses ?? {}).entries) {
-      expenseControllers[entry.key] = TextEditingController(
-        text: entry.value.toStringAsFixed(0),
-      );
+      expenseControllers[entry.key] =
+          TextEditingController(text: entry.value.toStringAsFixed(0));
     }
   }
 
@@ -232,40 +277,28 @@ class _UserInputDialogState extends State<_UserInputDialog> {
       title: Text(widget.initialUser == null ? 'Add User' : 'Edit User'),
       content: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextField(
               controller: incomeController,
-              decoration: InputDecoration(
-                labelText: 'Monthly Income',
-                border: OutlineInputBorder(),
-                prefixText: '₹ ',
-              ),
+              decoration:
+                  const InputDecoration(labelText: 'Income'),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 12),
-            Text('Expenses:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             ...['rent', 'food', 'shopping', 'travel'].map((cat) {
-              if (!expenseControllers.containsKey(cat)) {
-                expenseControllers[cat] = TextEditingController();
-              }
+              expenseControllers.putIfAbsent(
+                  cat, () => TextEditingController());
               return Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: TextField(
                   controller: expenseControllers[cat],
-                  decoration: InputDecoration(
-                    labelText: cat,
-                    border: OutlineInputBorder(),
-                    prefixText: '₹ ',
-                  ),
+                  decoration:
+                      InputDecoration(labelText: cat),
                   keyboardType: TextInputType.number,
                 ),
               );
@@ -275,9 +308,8 @@ class _UserInputDialogState extends State<_UserInputDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
-        ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () {
             final expenses = <String, double>{};
@@ -286,16 +318,16 @@ class _UserInputDialogState extends State<_UserInputDialog> {
               if (value > 0) expenses[key] = value;
             });
 
-            widget.onSave(
-              UserExpenseData(
-                name: nameController.text,
-                income: double.tryParse(incomeController.text) ?? 0,
-                expenses: expenses,
-              ),
-            );
+            widget.onSave(UserExpenseData(
+              name: nameController.text,
+              income:
+                  double.tryParse(incomeController.text) ?? 0,
+              expenses: expenses,
+            ));
+
             Navigator.pop(context);
           },
-          child: Text('Save'),
+          child: const Text('Save'),
         ),
       ],
     );
@@ -305,7 +337,8 @@ class _UserInputDialogState extends State<_UserInputDialog> {
   void dispose() {
     nameController.dispose();
     incomeController.dispose();
-    expenseControllers.forEach((_, controller) => controller.dispose());
+    expenseControllers
+        .forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 }

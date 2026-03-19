@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class TransactionTrendChart extends StatelessWidget {
   final List<TransactionData> data;
 
-  const TransactionTrendChart({Key? key, required this.data}) : super(key: key);
+  const TransactionTrendChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

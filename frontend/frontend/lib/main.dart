@@ -3,7 +3,7 @@ import 'screens/splash_screen.dart';
 import 'utils/colors.dart';
 
 void main() {
-  runApp(const SmartPayApp());
+  runApp(SmartPayApp());
 }
 
 class SmartPayApp extends StatelessWidget {
