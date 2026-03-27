@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/user_expense_data.dart';
 import '../utils/ai_insights.dart';
 import '../utils/financial_chat_assistant.dart';
+import '../utils/app_state.dart';
 import '../widgets/category_chart.dart';
 import '../widgets/transaction_chart.dart';
 
@@ -23,16 +24,23 @@ class _AIReportScreenState extends State<AIReportScreen> {
   late AIFinancialReport _report;
   final TextEditingController _chatController = TextEditingController();
   final List<_ChatMessage> _messages = [];
+  final ScrollController _chatScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _generateReport();
+    AppState.balance.addListener(_handleBalanceChange);
+  }
+
+  void _handleBalanceChange() {
+    setState(_generateReport);
   }
 
   void _generateReport() {
+    final balance = AppState.balance.value;
     _report = AIFinancialReport(
-      aiSalary: widget.user.income,
+      aiSalary: balance > 0 ? balance : widget.user.income,
       aiTotalExpense: widget.user.totalExpense,
       categoryTotals: widget.user.expenses,
       lastMonthExpense: widget.user.lastMonthExpense,
@@ -232,6 +240,19 @@ class _AIReportScreenState extends State<AIReportScreen> {
             ),
             const SizedBox(height: 16),
             ..._messages.map(_buildMessageBubble),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: FinancialChatAssistant.suggestedPrompts
+                  .map(
+                    (prompt) => ActionChip(
+                      label: Text(prompt),
+                      onPressed: () => _sendSuggested(prompt),
+                    ),
+                  )
+                  .toList(),
+            ),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -492,6 +513,22 @@ class _AIReportScreenState extends State<AIReportScreen> {
       _messages.add(_ChatMessage(text: reply, isUser: false));
       _chatController.clear();
     });
+
+    _scrollChatToBottom();
+  }
+
+  void _sendSuggested(String prompt) {
+    final reply = FinancialChatAssistant.generateReply(
+      question: prompt,
+      report: _report,
+    );
+
+    setState(() {
+      _messages.add(_ChatMessage(text: prompt, isUser: true));
+      _messages.add(_ChatMessage(text: reply, isUser: false));
+    });
+
+    _scrollChatToBottom();
   }
 
   void _showWhatIfDialog() {
@@ -575,7 +612,21 @@ class _AIReportScreenState extends State<AIReportScreen> {
   @override
   void dispose() {
     _chatController.dispose();
+    _chatScrollController.dispose();
+    AppState.balance.removeListener(_handleBalanceChange);
     super.dispose();
+  }
+
+  void _scrollChatToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_chatScrollController.hasClients) {
+        _chatScrollController.animateTo(
+          _chatScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 }
 

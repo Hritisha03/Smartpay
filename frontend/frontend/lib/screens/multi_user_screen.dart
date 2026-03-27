@@ -13,19 +13,19 @@ class MultiUserInputScreen extends StatefulWidget {
 class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   final List<UserExpenseData> users = [
     UserExpenseData(
-      name: 'Alok',
+      name: 'Hritisha',
       income: 45000,
-      expenses: {'rent': 15000, 'food': 5000, 'shopping': 3000},
+      expenses: {'rent': 15000, 'food': 6000, 'shopping': 2500, 'travel': 1500},
+    ),
+    UserExpenseData(
+      name: 'Alok',
+      income: 60000,
+      expenses: {'rent': 20000, 'food': 9000, 'shopping': 6000, 'travel': 3000},
     ),
     UserExpenseData(
       name: 'Siba',
-      income: 60000,
-      expenses: {'rent': 20000, 'food': 8000, 'shopping': 5000},
-    ),
-    UserExpenseData(
-      name: 'Hritisha',
       income: 55000,
-      expenses: {'rent': 18000, 'food': 10000, 'shopping': 12000},
+      expenses: {'rent': 18000, 'food': 12000, 'shopping': 14000, 'travel': 5000},
     ),
   ];
 

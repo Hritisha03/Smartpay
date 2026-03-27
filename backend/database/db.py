@@ -33,7 +33,8 @@ class Database:
         ]
         self.users["user1"] = UserProfile(
             user_id="user1",
-            name="Alok (Saver)",
+            name="Hritisha",
+            password="1234",
             monthly_income=45000,
             monthly_goal=10000,
             transactions=user1_transactions,
@@ -55,7 +56,8 @@ class Database:
         ]
         self.users["user2"] = UserProfile(
             user_id="user2",
-            name="Hansikaa (Balanced)",
+            name="Siba",
+            password="1234",
             monthly_income=60000,
             monthly_goal=12000,
             transactions=user2_transactions,
@@ -79,7 +81,8 @@ class Database:
         ]
         self.users["user3"] = UserProfile(
             user_id="user3",
-            name="Siba (Overspender)",
+            name="Alok",
+            password="1234",
             monthly_income=55000,
             monthly_goal=8000,
             transactions=user3_transactions,

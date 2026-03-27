@@ -6,6 +6,7 @@ This is the main API server with all AI endpoints.
 from fastapi import FastAPI, jsonify
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict
+import json
 from pydantic import BaseModel
 import sys
 import os
@@ -17,6 +18,7 @@ from models.data_models import Transaction, UserProfile
 from database.db import db
 from orchestrator import AIOrchestrator
 from agents.classifier_agent import ClassifierAgent
+from agents.risk_agent import run_risk_agent
 
 app = FastAPI(title="SmartPay AI", version="1.0.0")
 
@@ -51,6 +53,18 @@ class WhatIfRequest(BaseModel):
     user_id: str
     category: str
     reduction_percentage: float
+
+
+class GuardRequest(BaseModel):
+    """Request model for transaction guard."""
+    user_id: str
+    recipient: str
+    amount: float
+
+
+class LoginRequest(BaseModel):
+    name: str
+    password: str
 
 
 # ==================== Endpoints ====================
@@ -90,6 +104,15 @@ def get_all_users():
         ],
         "total_users": len(users),
     }
+
+
+@app.post("/login")
+def login(request: LoginRequest):
+    users = db.get_all_users()
+    for u in users:
+        if u.name.lower() == request.name.lower() and u.password == request.password:
+            return {"user_id": u.user_id, "name": u.name}
+    return {"error": "Invalid credentials"}, 401
 
 
 @app.get("/users/{user_id}")
@@ -220,7 +243,7 @@ def what_if_simulation(request: WhatIfRequest):
         "new_monthly_spend": round(simulated_monthly, 2),
         "new_savings": round(new_savings, 2),
         "savings_improvement": round(savings_improvement, 2),
-        "message": f"If you reduce {request.category} by {request.reduction_percentage}%, you save ₹{savings_improvement:.0f}/month.",
+        "message": f"If you reduce {request.category} by {request.reduction_percentage}%, you save â‚¹{savings_improvement:.0f}/month.",
     }
 
 
@@ -249,14 +272,17 @@ def assess_risk(user_id: str):
     if not user:
         return {"error": "User not found"}, 404
 
-    risk_assessment = orchestrator.risk.assess_risk(user)
+    total_spent = sum(txn.amount for txn in user.transactions)
+    risk_assessment = run_risk_agent(
+        {
+            "income": user.monthly_income,
+            "spending": total_spent,
+        }
+    )
 
     return {
         "user_id": user_id,
         "risk_level": risk_assessment.get("risk_level"),
-        "risk_score": risk_assessment.get("risk_score"),
-        "spending_ratio": risk_assessment.get("spending_ratio"),
-        "savings_ratio": risk_assessment.get("savings_ratio"),
         "warnings": risk_assessment.get("warnings"),
     }
 
@@ -265,11 +291,14 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+
 class ChatRequest(BaseModel):
     user_id: str
     message: str
 
+
 from agents.advisor_agent import advisor_agent  # reuse LLM
+
 
 @app.post("/chat")
 def chat(req: ChatRequest):
@@ -278,32 +307,106 @@ def chat(req: ChatRequest):
     if not user:
         return {"error": "User not found"}
 
-    # 🔥 Get full AI analysis
     report = orchestrator.analyze_user(user)
 
-    # 🔥 Build context for LLM
-    context = f"""
-    User Financial Report:
-    - Trend: {report.trend}
-    - Predicted Expense: {report.predicted_expense}
+    total_spending = sum(txn.amount for txn in user.transactions)
+    categories = {}
+    for txn in user.transactions:
+        categories[txn.category] = categories.get(txn.category, 0) + txn.amount
+
+    prompt = f"""
+    You are an intelligent financial assistant inside a finance app.
+
+    You are powered by multiple AI capabilities:
+    - Spending Analysis (trends, categories)
+    - Expense Prediction (future spending)
+    - Risk Assessment (overspending risk)
+    - Financial Advice (improvement suggestions)
+
+    You already have the user's financial data:
+
+    - Income: {user.monthly_income}
+    - Total Spending: {total_spending}
+    - Category Breakdown: {categories}
+    - Predicted Next Expense: {report.predicted_expense}
     - Risk Level: {report.risk_level}
-    - Health Score: {report.health_score}
     - Insights: {report.insights}
     - Advice: {report.advice}
-    """
 
-    #  LLM Chat
-    prompt = f"""
-    User Question: {req.message}
+    User Question:
+    {req.message}
 
-    Context:
-    {context}
+    Your task:
+    1. Understand what the user is asking.
+    2. Internally decide which capability is needed:
+       - prediction
+       - risk
+       - analysis
+       - advice
+       - or a combination
+    3. Use ONLY the relevant data provided.
+    4. If needed, combine multiple insights (for example: prediction + risk).
+    5. Give a clear, simple, and practical answer.
+    6. Do NOT make up new data.
+    7. Keep the answer concise and user-friendly.
 
-    Answer clearly and helpfully.
+    Final Answer:
     """
 
     response = advisor_agent.run(prompt)
 
-    return {
-        "reply": response.content
-    } 
+    return {"reply": response.content}
+
+
+@app.post("/transaction-guard")
+def transaction_guard(req: GuardRequest):
+    user = db.get_user(req.user_id)
+    if not user:
+        return {"error": "User not found"}, 404
+
+    total_spent = sum(txn.amount for txn in user.transactions)
+    num_months = len(set(t.date[:7] for t in user.transactions)) or 1
+    avg_monthly = total_spent / num_months
+    balance_estimate = max(0, user.monthly_income - avg_monthly)
+    risk_assessment = run_risk_agent(
+        {"income": user.monthly_income, "spending": total_spent}
+    )
+
+    guard_prompt = f"""
+    You are Transaction Guard AI. Decide whether to Approve, Warn, or Reject a payment.
+    Use only the data provided. Output JSON with keys decision and reason.
+
+    User Data:
+    - Balance: {balance_estimate}
+    - Monthly Income: {user.monthly_income}
+    - Average Monthly Spend: {avg_monthly}
+    - Risk Level: {risk_assessment.get('risk_level')}
+
+    Payment Request:
+    - Recipient: {req.recipient}
+    - Amount: {req.amount}
+
+    Rules:
+    - Reject if amount is clearly unaffordable or risk is high and amount is large.
+    - Warn if amount is significant but could be ok with caution.
+    - Approve if amount is reasonable.
+    """
+
+    response = advisor_agent.run(guard_prompt)
+    content = response.content.strip()
+
+    decision = "warn"
+    reason = "Please review this payment before proceeding."
+    try:
+        data = json.loads(content)
+        decision = str(data.get("decision", decision)).lower()
+        reason = str(data.get("reason", reason))
+    except Exception:
+        lowered = content.lower()
+        if "reject" in lowered:
+            decision = "reject"
+        elif "approve" in lowered:
+            decision = "approve"
+        reason = content[:240] if content else reason
+
+    return {"decision": decision, "reason": reason}

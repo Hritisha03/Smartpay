@@ -20,6 +20,7 @@ class UserProfile:
     """User profile with financial data."""
     user_id: str
     name: str
+    password: str
     monthly_income: float
     monthly_goal: float
     transactions: List[Transaction]

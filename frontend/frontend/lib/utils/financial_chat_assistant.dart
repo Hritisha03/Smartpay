@@ -16,6 +16,13 @@ Always:
 - Give helpful answers
 ''';
 
+  static const List<String> suggestedPrompts = [
+    'How are my savings?',
+    'Am I overspending anywhere?',
+    'What is my risk level?',
+    'What should I do next?',
+  ];
+
   static String welcomeMessage(AIFinancialReport report) {
     final topCategory = _highestCategory(report.categoryTotals);
     return 'Hi! I can help with your spending, risk, and predictions. '
@@ -48,10 +55,7 @@ Always:
     }
 
     if (_containsAny(normalized, ['saving', 'savings', 'save'])) {
-      return savings > 0
-          ? 'You are currently saving about Rs $savings this month. '
-              'A simple next step is to move part of that into a fixed savings goal.'
-          : 'You are not saving much right now. Start by cutting a small non-essential expense this month.';
+      return _buildSavingsReply(report, savings, topCategory);
     }
 
     if (_containsAny(normalized, ['spending', 'spent', 'expense', 'expenses', 'category'])) {
@@ -88,6 +92,26 @@ Always:
     }
 
     return 'Focus on lowering $topCategory spending a little and protect at least Rs ${((savings * 0.2).round())} each month for savings.';
+  }
+
+  static String _buildSavingsReply(
+    AIFinancialReport report,
+    int savings,
+    String topCategory,
+  ) {
+    if (savings <= 0) {
+      return 'You are not saving much right now. Start by trimming $topCategory this month and set a small weekly cap.';
+    }
+
+    final savingRatio =
+        report.aiSalary <= 0 ? 0 : (savings / report.aiSalary);
+    final percent = (savingRatio * 100).round();
+
+    if (percent >= 25) {
+      return 'Great job. You are saving about Rs $savings this month (${percent}%). Keep that up and move part into a goal fund.';
+    }
+
+    return 'You are saving about Rs $savings this month (${percent}%). Try to push it a bit higher by trimming $topCategory.';
   }
 
   static bool _containsAny(String text, List<String> keywords) {
