@@ -67,5 +67,5 @@ class TransactionData {
   final int month;
   final double amount;
 
-  TransactionData(this.month, this.amount);
+  const TransactionData(this.month, this.amount);
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'multi_user_screen.dart';
-import 'history_screen.dart';
+import '../models/user_expense_data.dart';
+import '../utils/colors.dart';
 import 'send_money_screen.dart';
-import 'comparison_screen.dart';
+import 'history_screen.dart';
+import 'ai_report_screen.dart';
+import 'multi_user_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,173 +12,114 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-
       appBar: AppBar(
-        title: const Text("SmartPay"),
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
+        title: const Text("SmartPay", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // 💰 WALLET CARD
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Colors.deepPurple, Colors.purpleAccent],
-                ),
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Wallet Balance",
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  SizedBox(height: 10),
+                  Text("Wallet Balance"),
+                  SizedBox(height: 8),
                   Text(
                     "₹10,000",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 30),
 
-            const SizedBox(height: 25),
-
-            // 🔲 GRID
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                children: [
-                  // 🔥 SEND
-                  _buildCard(
-                    context,
-                    Icons.send,
-                    "Send",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SendMoneyScreen(),
-                        ),
-                      );
-                    },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _ActionTile(
+                  icon: Icons.send,
+                  label: "Send",
+                  screen: SendMoneyScreen(),
+                ),
+                _ActionTile(
+                  icon: Icons.history,
+                  label: "History",
+                  screen: HistoryScreen(),
+                ),
+                _ActionTile(
+                  icon: Icons.insights,
+                  label: "AI Report",
+                  screen: AIReportScreen(
+                    user: UserExpenseData(
+                      name: 'Alice',
+                      income: 45000,
+                      expenses: {'rent': 15000, 'food': 5000, 'shopping': 3000},
+                    ),
                   ),
-
-                  // 📜 HISTORY
-                  _buildCard(
-                    context,
-                    Icons.history,
-                    "History",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HistoryScreen(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  // 👥 MULTI USER
-                  _buildCard(
-                    context,
-                    Icons.people,
-                    "Multi-User",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const MultiUserInputScreen(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  // 🧠 AI REPORT
-                  _buildCard(
-                    context,
-                    Icons.analytics,
-                    "AI Report",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const MultiUserInputScreen(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  // 📊 COMPARISON
-                  _buildCard(
-                    context,
-                    Icons.trending_up,
-                    "Comparison",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const ComparisonScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _ActionTile(
+                  icon: Icons.group,
+                  label: "Multi-User",
+                  screen: const MultiUserInputScreen(),
+                ),
+                _ActionTile(
+                  icon: Icons.trending_up,
+                  label: "Comparison",
+                  screen: const MultiUserInputScreen(),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  // 🔥 CARD WIDGET
-  Widget _buildCard(
-    BuildContext context,
-    IconData icon,
-    String title,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Widget screen;
+
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.screen,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => screen),
+        );
+      },
       child: Container(
+        width: 150,
+        padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-            )
-          ],
+          color: AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 35, color: Colors.deepPurple),
+            Icon(icon, size: 30, color: AppColors.primary),
             const SizedBox(height: 10),
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            )
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
       ),

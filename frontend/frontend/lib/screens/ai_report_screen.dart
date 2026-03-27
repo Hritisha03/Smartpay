@@ -2,24 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../models/user_expense_data.dart';
 import '../utils/ai_insights.dart';
-import '../widgets/transaction_chart.dart';
+import '../utils/financial_chat_assistant.dart';
 import '../widgets/category_chart.dart';
+import '../widgets/transaction_chart.dart';
 
-/// A comprehensive AI financial report screen with charts and insights.
-///
-/// This screen displays:
-/// - Spending trends chart
-/// - Category breakdown pie chart
-/// - AI health score and risk assessment
-/// - Personalized insights and recommendations
-/// - What-if simulation capability
 class AIReportScreen extends StatefulWidget {
   final UserExpenseData user;
 
   const AIReportScreen({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   State<AIReportScreen> createState() => _AIReportScreenState();
@@ -28,6 +21,8 @@ class AIReportScreen extends StatefulWidget {
 class _AIReportScreenState extends State<AIReportScreen> {
   bool _isLoading = false;
   late AIFinancialReport _report;
+  final TextEditingController _chatController = TextEditingController();
+  final List<_ChatMessage> _messages = [];
 
   @override
   void initState() {
@@ -36,18 +31,22 @@ class _AIReportScreenState extends State<AIReportScreen> {
   }
 
   void _generateReport() {
-    final aiSalary = widget.user.income;
-    final aiTotalExpense = widget.user.totalExpense;
-    final lastMonthExpense = widget.user.lastMonthExpense;
-    final goal = widget.user.defaultGoal;
-
     _report = AIFinancialReport(
-      aiSalary: aiSalary,
-      aiTotalExpense: aiTotalExpense,
+      aiSalary: widget.user.income,
+      aiTotalExpense: widget.user.totalExpense,
       categoryTotals: widget.user.expenses,
-      lastMonthExpense: lastMonthExpense,
-      goal: goal,
+      lastMonthExpense: widget.user.lastMonthExpense,
+      goal: widget.user.defaultGoal,
     );
+
+    if (_messages.isEmpty) {
+      _messages.add(
+        _ChatMessage(
+          text: FinancialChatAssistant.welcomeMessage(_report),
+          isUser: false,
+        ),
+      );
+    }
   }
 
   @override
@@ -70,7 +69,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                       Colors.deepPurple[700]!,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     'AI analyzing your financial data...',
                     style: TextStyle(
@@ -83,31 +82,24 @@ class _AIReportScreenState extends State<AIReportScreen> {
             )
           : SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Key Metrics Cards
                     _buildKeyMetricsCards(),
-                    SizedBox(height: 20),
-
-                    // Health Score Card
+                    const SizedBox(height: 20),
                     _buildHealthScoreCard(),
-                    SizedBox(height: 20),
-
-                    // Risk Assessment Card
+                    const SizedBox(height: 20),
                     _buildRiskCard(),
-                    SizedBox(height: 20),
-
-                    // Spending Trend Chart
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       'Spending Trend Analysis',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Container(
                       height: 300,
                       decoration: BoxDecoration(
@@ -115,7 +107,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TransactionTrendChart(
-                        data: [
+                        data: const [
                           TransactionData(1, 32500),
                           TransactionData(2, 34000),
                           TransactionData(3, 35000),
@@ -123,17 +115,15 @@ class _AIReportScreenState extends State<AIReportScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
-
-                    // Category Breakdown Chart
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       'Category Breakdown',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Container(
                       height: 300,
                       decoration: BoxDecoration(
@@ -144,27 +134,25 @@ class _AIReportScreenState extends State<AIReportScreen> {
                         categoryData: _report.categoryTotals,
                       ),
                     ),
-                    SizedBox(height: 20),
-
-                    // Full Report Card
+                    const SizedBox(height: 20),
                     Card(
                       elevation: 4,
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '📊 Detailed Analysis',
+                            const Text(
+                              'Detailed Analysis',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             SelectableText(
                               reportText,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 height: 1.6,
                               ),
@@ -173,31 +161,27 @@ class _AIReportScreenState extends State<AIReportScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
-
-                    // What-If Simulation Button
+                    const SizedBox(height: 20),
+                    _buildAssistantChatCard(),
+                    const SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: _showWhatIfDialog,
-                      icon: Icon(Icons.trending_up),
-                      label: Text('What-If Simulation'),
+                      icon: const Icon(Icons.trending_up),
+                      label: const Text('What-If Simulation'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple[700],
-                        minimumSize: Size(double.infinity, 50),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
-                    SizedBox(height: 20),
-
-                    // Refresh Button
+                    const SizedBox(height: 20),
                     OutlinedButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _generateReport();
-                        });
+                        setState(_generateReport);
                       },
-                      icon: Icon(Icons.refresh),
-                      label: Text('Refresh Report'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Refresh Report'),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
                   ],
@@ -207,45 +191,149 @@ class _AIReportScreenState extends State<AIReportScreen> {
     );
   }
 
-  Widget _buildKeyMetricsCards() {
-    return Row(
+  Widget _buildAssistantChatCard() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Smart Financial Assistant',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Ask about spending, advice, or predictions.',
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.deepPurple.withOpacity(0.15),
+                ),
+              ),
+              child: Text(
+                FinancialChatAssistant.systemPrompt.trim(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ..._messages.map(_buildMessageBubble),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _chatController,
+                    minLines: 1,
+                    maxLines: 3,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _sendChatMessage(),
+                    decoration: InputDecoration(
+                      hintText: 'Ask a money question',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _sendChatMessage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple[700],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 18,
+                    ),
+                  ),
+                  child: const Icon(Icons.send),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble(_ChatMessage message) {
+    final bubbleColor =
+        message.isUser ? Colors.deepPurple[700]! : Colors.grey[200]!;
+    final textColor = message.isUser ? Colors.white : Colors.black87;
+    final alignment =
+        message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+
+    return Column(
+      crossAxisAlignment: alignment,
       children: [
-        Expanded(
-          child: _buildMetricCard(
-            '💰',
-            'Income',
-            '₹${_report.aiSalary.toStringAsFixed(0)}',
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: bubbleColor,
+            borderRadius: BorderRadius.circular(14),
           ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: _buildMetricCard(
-            '📊',
-            'Expenses',
-            '₹${_report.aiTotalExpense.toStringAsFixed(0)}',
-          ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: _buildMetricCard(
-            '💵',
-            'Savings',
-            '₹${(_report.aiSalary - _report.aiTotalExpense).toStringAsFixed(0)}',
+          child: Text(
+            message.text,
+            style: TextStyle(
+              color: textColor,
+              height: 1.4,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMetricCard(String icon, String label, String value) {
+  Widget _buildKeyMetricsCards() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMetricCard(
+            'Income',
+            'Rs ${_report.aiSalary.toStringAsFixed(0)}',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildMetricCard(
+            'Expenses',
+            'Rs ${_report.aiTotalExpense.toStringAsFixed(0)}',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildMetricCard(
+            'Savings',
+            'Rs ${(_report.aiSalary - _report.aiTotalExpense).toStringAsFixed(0)}',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard(String label, String value) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(icon, style: TextStyle(fontSize: 24)),
-            SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
@@ -253,10 +341,10 @@ class _AIReportScreenState extends State<AIReportScreen> {
                 color: Colors.grey[600],
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -278,25 +366,25 @@ class _AIReportScreenState extends State<AIReportScreen> {
     return Card(
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '💯 Financial Health Score',
+            const Text(
+              'Financial Health Score',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 CircleAvatar(
                   radius: 40,
                   backgroundColor: color.withOpacity(0.2),
                   child: Text(
-                    '${healthScore.toStringAsFixed(0)}',
+                    '$healthScore',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -304,7 +392,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,7 +403,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                         backgroundColor: Colors.grey[300],
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         healthScore >= 70
                             ? 'Excellent'
@@ -340,9 +428,10 @@ class _AIReportScreenState extends State<AIReportScreen> {
 
   Widget _buildRiskCard() {
     final riskLevel = _report.riskLevel;
-    final color = riskLevel == 'High'
+    final normalizedRisk = riskLevel.toLowerCase();
+    final color = normalizedRisk.contains('high')
         ? Colors.red
-        : riskLevel == 'Medium'
+        : normalizedRisk.contains('medium')
             ? Colors.orange
             : Colors.green;
 
@@ -350,45 +439,59 @@ class _AIReportScreenState extends State<AIReportScreen> {
       elevation: 4,
       color: color.withOpacity(0.1),
       child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(16),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  '⚠',
-                  style: TextStyle(fontSize: 32),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Risk Level',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      Text(
-                        riskLevel,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
-                      ),
-                    ],
+            Icon(
+              Icons.warning_amber_rounded,
+              color: color,
+              size: 32,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Risk Level',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    riskLevel,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _sendChatMessage() {
+    final input = _chatController.text.trim();
+    if (input.isEmpty) {
+      return;
+    }
+
+    final reply = FinancialChatAssistant.generateReply(
+      question: input,
+      report: _report,
+    );
+
+    setState(() {
+      _messages.add(_ChatMessage(text: input, isUser: true));
+      _messages.add(_ChatMessage(text: reply, isUser: false));
+      _chatController.clear();
+    });
   }
 
   void _showWhatIfDialog() {
@@ -398,33 +501,35 @@ class _AIReportScreenState extends State<AIReportScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('What-If Simulation'),
+        title: const Text('What-If Simulation'),
         content: StatefulBuilder(
-          builder: (context, setState) => Column(
+          builder: (context, setLocalState) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Select category to reduce:'),
-              SizedBox(height: 16),
+              const Text('Select category to reduce:'),
+              const SizedBox(height: 16),
               DropdownButton<String>(
                 value: selectedCategory,
                 isExpanded: true,
                 items: _report.categoryTotals.keys
-                    .map((cat) => DropdownMenuItem(
-                          value: cat,
-                          child: Text(cat),
-                        ))
+                    .map(
+                      (category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      ),
+                    )
                     .toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() {
+                    setLocalState(() {
                       selectedCategory = value;
                     });
                   }
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Reduction %',
                   border: OutlineInputBorder(),
                   suffixText: '%',
@@ -440,31 +545,46 @@ class _AIReportScreenState extends State<AIReportScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              final originalAmount =
-                  _report.categoryTotals[selectedCategory] ?? 0;
+              final originalAmount = _report.categoryTotals[selectedCategory] ?? 0;
               final reduction = originalAmount * (reductionPercent / 100);
-              final newSavings = (_report.aiSalary -
-                      (_report.aiTotalExpense - reduction))
-                  .toStringAsFixed(0);
+              final newSavings = (
+                _report.aiSalary - (_report.aiTotalExpense - reduction)
+              ).toStringAsFixed(0);
 
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'If you reduce $selectedCategory by $reductionPercent%, your new savings would be ₹$newSavings/month',
+                    'If you reduce $selectedCategory by $reductionPercent%, your new savings would be Rs $newSavings per month.',
                   ),
-                  duration: Duration(seconds: 4),
+                  duration: const Duration(seconds: 4),
                 ),
               );
             },
-            child: Text('Simulate'),
+            child: const Text('Simulate'),
           ),
         ],
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _chatController.dispose();
+    super.dispose();
+  }
+}
+
+class _ChatMessage {
+  final String text;
+  final bool isUser;
+
+  const _ChatMessage({
+    required this.text,
+    required this.isUser,
+  });
 }

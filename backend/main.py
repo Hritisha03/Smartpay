@@ -264,3 +264,46 @@ def assess_risk(user_id: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+class ChatRequest(BaseModel):
+    user_id: str
+    message: str
+
+from agents.advisor_agent import advisor_agent  # reuse LLM
+
+@app.post("/chat")
+def chat(req: ChatRequest):
+    user = db.get_user(req.user_id)
+
+    if not user:
+        return {"error": "User not found"}
+
+    # 🔥 Get full AI analysis
+    report = orchestrator.analyze_user(user)
+
+    # 🔥 Build context for LLM
+    context = f"""
+    User Financial Report:
+    - Trend: {report.trend}
+    - Predicted Expense: {report.predicted_expense}
+    - Risk Level: {report.risk_level}
+    - Health Score: {report.health_score}
+    - Insights: {report.insights}
+    - Advice: {report.advice}
+    """
+
+    #  LLM Chat
+    prompt = f"""
+    User Question: {req.message}
+
+    Context:
+    {context}
+
+    Answer clearly and helpfully.
+    """
+
+    response = advisor_agent.run(prompt)
+
+    return {
+        "reply": response.content
+    } 
