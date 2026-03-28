@@ -86,3 +86,54 @@ These agents are coordinated by an AI Orchestrator, which combines their outputs
 ---
 
 ## 🧩 System Architecture
+Frontend (Flutter UI)
+↓
+FastAPI Backend
+↓
+AI Orchestrator
+↓
+Multiple AI Agents
+↓
+Final AI Response
+
+
+---
+
+## 🔥 Key Highlights
+
+- Multi-Agent AI architecture (Agentic AI)
+- Hybrid AI system (ML + LLM + rule-based)
+- Real-time transaction risk detection
+- Explainable AI insights
+- Scalable and modular design
+
+---
+
+## 🚧 Future Improvements
+
+- JWT Authentication & secure login
+- Cloud database (Firebase / MongoDB)
+- Advanced ML models (LSTM / Time Series)
+- Real-time alerts & notifications
+- Fraud detection system
+
+---
+
+## 🧑‍💻 Contributors
+
+- ML/AI Lead – Designed multi-agent AI system & ML models  
+- Backend Developer – Built APIs & orchestrator  
+- Frontend Developer – Designed Flutter UI  
+- Integration Engineer – Connected frontend with backend  
+
+---
+
+## 🎯 Project Vision
+
+SmartPay AI aims to transform traditional payment apps into intelligent financial assistants that not only process transactions but also guide users toward better financial decisions.
+
+---
+
+## 📌 License
+
+This project is for academic and demonstration purposes.
