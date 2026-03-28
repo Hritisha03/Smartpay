@@ -1,129 +1,88 @@
-# SmartPay AI — Agentic Explainable Financial Decision System
+# 🚀 SmartPay AI: An Intelligent Multi-Agent Financial Assistant
 
-A beginner-friendly multi-agent AI system that uses rule-based reasoning to analyze personal finance data.
+SmartPay AI is a next-generation fintech application that combines UPI-style payments with a multi-agent AI system to provide intelligent financial insights, predictions, and real-time decision support.
 
-## Project Structure
+---
 
-```
-smartpay-ai/
-├── backend/
-│   ├── app.py
-│   └── analytics.py
-├── ai/
-│   ├── ai_engine.py
-│   ├── explanation_agent.py
-│   ├── justification_agent.py
-│   ├── peer_comparison_agent.py
-│   ├── regret_agent.py
-│   └── what_if_agent.py
-├── api/
-│   └── routes.py
-├── frontend/
-│   └── README.md
-└── README.md
-```
+## 🌟 Features
 
-## Running the API
+### 💸 Smart Payments
+- Send & receive money seamlessly
+- Secure PIN-based transactions
+- AI-powered Transaction Guard (Approve / Warn / Reject)
 
-1. Create a Python environment and install Flask:
+### 🤖 AI Financial Assistant
+- Chat-based assistant for:
+  - Spending analysis
+  - Risk insights
+  - Future predictions
+  - Financial advice
 
-```bash
-python -m venv venv
-venv\Scripts\activate
-pip install flask
-```
+### 📊 AI-Powered Reports
+- Spending trends
+- Category breakdown
+- Financial health score
+- Risk analysis
+- Personalized recommendations
 
-2. Start the API server:
+### 🔮 Expense Prediction
+- Predicts next month’s expenses using Machine Learning
 
-```bash
-python backend/app.py
-```
+### 👥 Multi-User Analytics
+- Compare multiple users
+- Identify top spenders
+- Analyze savings behavior
 
-3. Verify it works (optional):
+---
 
-```bash
-python backend/test_request.py
-```
+## 🧠 Agentic AI Architecture
 
-4. Send a POST request to `http://localhost:5000/analyze` (or use the frontend demo).
+SmartPay AI uses a Multi-Agent AI System where each agent specializes in a specific task:
 
-## Running the frontend demo (optional)
+| Agent | Function |
+|------|--------|
+| Analyzer Agent | Understands spending patterns |
+| Prediction Agent | Predicts future expenses (ML) |
+| Risk Agent | Detects financial risk |
+| Classifier Agent | Classifies user behavior |
+| Advisor Agent | Provides financial advice |
 
-A simple web UI is provided under `frontend/`. To run it, serve the folder using a static server and then open the browser:
+These agents are coordinated by an AI Orchestrator, which combines their outputs into a unified report.
 
-```bash
-cd frontend
-python -m http.server 8000
-```
+---
 
-Then open:
+## ⚙️ Tech Stack
 
-```
-http://localhost:8000
-```
+### Frontend
+- Flutter (Dart)
+- Material UI
+- fl_chart (for charts)
+- ValueNotifier (state management)
 
-The frontend sends requests to `http://localhost:5000/analyze` and displays the JSON response.
+### Backend
+- FastAPI (Python)
+- REST API architecture
+- Multi-agent AI system
 
-## Example Request JSON
+### AI/ML
+- OpenAI LLM (for reasoning agents)
+- Scikit-learn:
+  - Linear Regression (prediction)
+  - KMeans (classification)
 
-```json
-{
-  "income": 30000,
-  "total_spend": 21000,
-  "categories": {
-    "rent": 40,
-    "grocery": 35,
-    "food": 15,
-    "shopping": 10
-  },
-  "goal": 50000
-}
-```
+---
 
-## Example Response JSON
+## 🔗 API Endpoints
 
-```json
-{
-  "insights": [
-    "Your spending differs from peer averages in some categories.",
-    "This score is computed by weighting each category by an importance value and then combining the results. Higher scores indicate more of your budget is allocated to higher-priority categories.",
-    "Your savings are less than 20% of income, which is a higher risk zone. Consider reducing discretionary spending or increasing income.",
-    "If you reduce shopping spending by 10% (from 10% to 9.0% of total spend), your total spend would be $18900.00 and savings would be $11100.00."
-  ],
-  "agent_breakdown": {
-    "peer": {
-      "message": "Your spending differs from peer averages in some categories.",
-      "reason": "You spend 5% more than peers on rent.; You spend 10% more than peers on grocery. (Peer comparisons were computed against a fixed rule-based baseline.)",
-      "comparison": [
-        "rent: you 40%, peers 35%",
-        "grocery: you 35%, peers 25%"
-      ]
-    },
-    "justification": {
-      "score": 7.7,
-      "explanation": "This score is computed by weighting each category by an importance value and then combining the results. Higher scores indicate more of your budget is allocated to higher-priority categories.",
-      "impact": "A higher score suggests your spending is aligned with the defined priorities. Lower scores may indicate an opportunity to re-balance spending based on goal priorities.",
-      "details": [
-        "rent (40%): weight=10, contribution=4.00",
-        "grocery (35%): weight=7, contribution=2.45",
-        "food (15%): weight=6, contribution=0.90",
-        "shopping (10%): weight=3, contribution=0.30"
-      ]
-    },
-    "regret": {
-      "risk": "high",
-      "message": "Your savings are less than 20% of income, which is a higher risk zone. Consider reducing discretionary spending or increasing income.",
-      "savings": 9000.0,
-      "threshold": 6000.0
-    },
-    "what_if": {
-      "new_spend": 18900.0,
-      "new_savings": 11100.0,
-      "message": "If you reduce shopping spending by 10% (from 10% to 9.0% of total spend), your total spend would be $18900.00 and savings would be $11100.00.",
-      "adjusted_category": "shopping",
-      "adjustment": 10.0
-    }
-  },
-  "explanation": "This insight is based on your income, spending distribution, and savings goal. Your spending differs from peer averages in some categories. A budget priority score of 7.7 was calculated to capture how your current spending aligns with a simple category weighting system. Your current risk level is classified as 'high'. Your savings are less than 20% of income, which is a higher risk zone. Consider reducing discretionary spending or increasing income. If you reduce shopping spending by 10% (from 10% to 9.0% of total spend), your total spend would be $18900.00 and savings would be $11100.00."
-}
-```
+| Endpoint | Description |
+|--------|------------|
+| `/analyze/{user_id}` | Full AI report |
+| `/chat` | AI chatbot |
+| `/predict-expense/{user_id}` | Expense prediction |
+| `/transaction-guard` | AI payment decision |
+| `/risk/{user_id}` | Risk analysis |
+| `/classify` | User classification |
+
+---
+
+## 🧩 System Architecture
