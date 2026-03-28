@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 
 import '../models/transaction_model.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
+import '../widgets/gradient_button.dart';
 import 'success_screen.dart';
 
 class SendMoneyScreen extends StatefulWidget {
@@ -59,7 +61,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please enter a recipient and amount."),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.danger,
         ),
       );
       return;
@@ -130,7 +132,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Incorrect PIN. Please try again."),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.danger,
         ),
       );
       return;
@@ -210,8 +212,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
+              child: GradientButton(
                 onPressed: isLoading ? null : handlePayment,
                 child: isLoading
                     ? const SizedBox(
@@ -219,10 +220,16 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                         width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 3,
-                          color: Colors.white,
+                          color: AppColors.background,
                         ),
                       )
-                    : const Text("Pay"),
+                    : const Text(
+                        "Pay",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.background,
+                        ),
+                      ),
               ),
             ),
           ],

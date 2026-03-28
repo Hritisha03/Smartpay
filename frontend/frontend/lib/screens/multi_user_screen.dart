@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'ai_report_screen.dart';
 import '../models/user_expense_data.dart';
+import '../utils/colors.dart';
 
 class MultiUserInputScreen extends StatefulWidget {
   const MultiUserInputScreen({super.key});
@@ -32,27 +33,23 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA), // 🔥 modern bg
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Multi-User Expenses'),
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: users.length,
-        itemBuilder: (context, index) =>
-            _buildUserCard(users[index], index),
+        itemBuilder: (context, index) => _buildUserCard(users[index], index),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addUser,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  // 🔥 UPDATED CARD UI
   Widget _buildUserCard(UserExpenseData user, int index) {
     final totalExpense =
         user.expenses.values.fold<double>(0, (p, c) => p + c);
@@ -61,13 +58,14 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: Color(0x3300D4FF),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           )
         ],
       ),
@@ -76,16 +74,14 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 👤 HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.deepPurple[100],
-                      child: const Icon(Icons.person,
-                          color: Colors.deepPurple),
+                      backgroundColor: AppColors.primary.withOpacity(0.2),
+                      child: const Icon(Icons.person, color: AppColors.primary),
                     ),
                     const SizedBox(width: 10),
                     Text(
@@ -111,67 +107,55 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            // 💰 METRICS
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMetric('Income', '₹${user.income}'),
+                _buildMetric('Income', 'Rs ${user.income}'),
                 _buildMetric(
-                    'Expenses', '₹${totalExpense.toStringAsFixed(0)}'),
+                    'Expenses', 'Rs ${totalExpense.toStringAsFixed(0)}'),
                 _buildMetric(
                   'Savings',
-                  '₹${savings.toStringAsFixed(0)}',
-                  color: savings > 0 ? Colors.green : Colors.red,
+                  'Rs ${savings.toStringAsFixed(0)}',
+                  color: savings > 0 ? AppColors.success : AppColors.danger,
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            // 📊 BREAKDOWN
             Text(
               'Breakdown',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 8),
-
             ...user.expenses.entries.map(
               (e) => Container(
                 margin: const EdgeInsets.symmetric(vertical: 4),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: AppColors.background,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(e.key.toUpperCase()),
-                    Text('₹${e.value.toStringAsFixed(0)}'),
+                    Text('Rs ${e.value.toStringAsFixed(0)}'),
                   ],
                 ),
               ),
             ),
-
             const SizedBox(height: 14),
-
-            // 🔥 BUTTON
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => _viewAIReport(user),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12),
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -189,14 +173,15 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style:
-                const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
         Text(
           value,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: color ?? Colors.black,
+            color: color ?? AppColors.textPrimary,
           ),
         ),
       ],
@@ -236,7 +221,6 @@ class _MultiUserInputScreenState extends State<MultiUserInputScreen> {
   }
 }
 
-// 🔥 USER INPUT DIALOG (unchanged logic, just slight UI polish)
 class _UserInputDialog extends StatefulWidget {
   final UserExpenseData? initialUser;
   final Function(UserExpenseData) onSave;
@@ -248,8 +232,7 @@ class _UserInputDialog extends StatefulWidget {
   });
 
   @override
-  State<_UserInputDialog> createState() =>
-      _UserInputDialogState();
+  State<_UserInputDialog> createState() => _UserInputDialogState();
 }
 
 class _UserInputDialogState extends State<_UserInputDialog> {
@@ -285,20 +268,17 @@ class _UserInputDialogState extends State<_UserInputDialog> {
             const SizedBox(height: 10),
             TextField(
               controller: incomeController,
-              decoration:
-                  const InputDecoration(labelText: 'Income'),
+              decoration: const InputDecoration(labelText: 'Income'),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 10),
             ...['rent', 'food', 'shopping', 'travel'].map((cat) {
-              expenseControllers.putIfAbsent(
-                  cat, () => TextEditingController());
+              expenseControllers.putIfAbsent(cat, () => TextEditingController());
               return Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: TextField(
                   controller: expenseControllers[cat],
-                  decoration:
-                      InputDecoration(labelText: cat),
+                  decoration: InputDecoration(labelText: cat),
                   keyboardType: TextInputType.number,
                 ),
               );
@@ -308,8 +288,9 @@ class _UserInputDialogState extends State<_UserInputDialog> {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel')),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         ElevatedButton(
           onPressed: () {
             final expenses = <String, double>{};
@@ -320,8 +301,7 @@ class _UserInputDialogState extends State<_UserInputDialog> {
 
             widget.onSave(UserExpenseData(
               name: nameController.text,
-              income:
-                  double.tryParse(incomeController.text) ?? 0,
+              income: double.tryParse(incomeController.text) ?? 0,
               expenses: expenses,
             ));
 
@@ -337,8 +317,7 @@ class _UserInputDialogState extends State<_UserInputDialog> {
   void dispose() {
     nameController.dispose();
     incomeController.dispose();
-    expenseControllers
-        .forEach((_, controller) => controller.dispose());
+    expenseControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 }

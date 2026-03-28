@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/transaction_model.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
+import '../widgets/gradient_button.dart';
 import 'success_screen.dart';
 
 class ReceiveMoneyScreen extends StatefulWidget {
@@ -25,7 +27,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Please enter a sender and amount."),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.danger,
         ),
       );
       return;
@@ -101,8 +103,7 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
+              child: GradientButton(
                 onPressed: isLoading ? null : _receiveMoney,
                 child: isLoading
                     ? const SizedBox(
@@ -110,10 +111,16 @@ class _ReceiveMoneyScreenState extends State<ReceiveMoneyScreen> {
                         width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 3,
-                          color: Colors.white,
+                          color: AppColors.background,
                         ),
                       )
-                    : const Text("Receive"),
+                    : const Text(
+                        "Receive",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.background,
+                        ),
+                      ),
               ),
             ),
           ],

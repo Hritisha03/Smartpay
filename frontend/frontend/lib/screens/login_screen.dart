@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
+import '../widgets/gradient_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -53,7 +55,7 @@ class LoginScreen extends StatelessWidget {
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: GradientButton(
                 onPressed: () {
                   final name = nameController.text.trim();
                   final password = passwordController.text.trim();
@@ -70,12 +72,18 @@ class LoginScreen extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Invalid name or password.'),
-                        backgroundColor: Colors.red,
+                        backgroundColor: AppColors.danger,
                       ),
                     );
                   }
                 },
-                child: const Text("Login"),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.background,
+                  ),
+                ),
               ),
             ),
           ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import '../utils/colors.dart';
+import '../widgets/gradient_button.dart';
 
 class SuccessScreen extends StatelessWidget {
   const SuccessScreen({super.key});
@@ -13,7 +15,7 @@ class SuccessScreen extends StatelessWidget {
           children: [
             const Icon(
               Icons.check_circle,
-              color: Colors.green,
+              color: AppColors.success,
               size: 80,
             ),
             const SizedBox(height: 20),
@@ -22,7 +24,7 @@ class SuccessScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(
+            GradientButton(
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
@@ -31,7 +33,13 @@ class SuccessScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text("Back to Home"),
+              child: const Text(
+                "Back to Home",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.background,
+                ),
+              ),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import '../models/user_expense_data.dart';
 import '../utils/ai_insights.dart';
 import '../utils/financial_chat_assistant.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
 import '../widgets/category_chart.dart';
 import '../widgets/transaction_chart.dart';
 
@@ -64,8 +65,6 @@ class _AIReportScreenState extends State<AIReportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('AI Report - ${widget.user.name}'),
-        backgroundColor: Colors.deepPurple[700],
-        elevation: 0,
       ),
       body: _isLoading
           ? Center(
@@ -74,7 +73,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                 children: [
                   CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.deepPurple[700]!,
+                      AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -82,7 +81,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                     'AI analyzing your financial data...',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey[700],
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -111,7 +110,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                     Container(
                       height: 300,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TransactionTrendChart(
@@ -135,7 +134,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                     Container(
                       height: 300,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: CategorySpendingChart(
@@ -177,7 +176,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                       icon: const Icon(Icons.trending_up),
                       label: const Text('What-If Simulation'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple[700],
+                        backgroundColor: AppColors.primary,
                         minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
@@ -217,17 +216,17 @@ class _AIReportScreenState extends State<AIReportScreen> {
             const SizedBox(height: 8),
             Text(
               'Ask about spending, advice, or predictions.',
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(color: AppColors.textMuted),
             ),
             const SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.deepPurple.withOpacity(0.05),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.deepPurple.withOpacity(0.15),
+                  color: AppColors.primary.withOpacity(0.15),
                 ),
               ),
               child: Text(
@@ -276,7 +275,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                 ElevatedButton(
                   onPressed: _sendChatMessage,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple[700],
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
                       vertical: 18,
@@ -294,8 +293,8 @@ class _AIReportScreenState extends State<AIReportScreen> {
 
   Widget _buildMessageBubble(_ChatMessage message) {
     final bubbleColor =
-        message.isUser ? Colors.deepPurple[700]! : Colors.grey[200]!;
-    final textColor = message.isUser ? Colors.white : Colors.black87;
+        message.isUser ? AppColors.primary : AppColors.surface;
+    final textColor = message.isUser ? AppColors.background : AppColors.textPrimary;
     final alignment =
         message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
 
@@ -359,7 +358,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 8),
@@ -379,10 +378,10 @@ class _AIReportScreenState extends State<AIReportScreen> {
   Widget _buildHealthScoreCard() {
     final healthScore = _report.healthScore;
     final color = healthScore >= 70
-        ? Colors.green
+        ? AppColors.success
         : healthScore >= 50
-            ? Colors.orange
-            : Colors.red;
+            ? AppColors.warning
+            : AppColors.danger;
 
     return Card(
       elevation: 4,
@@ -421,7 +420,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                       LinearProgressIndicator(
                         value: healthScore / 100,
                         minHeight: 10,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: AppColors.surface,
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                       ),
                       const SizedBox(height: 8),
@@ -451,10 +450,10 @@ class _AIReportScreenState extends State<AIReportScreen> {
     final riskLevel = _report.riskLevel;
     final normalizedRisk = riskLevel.toLowerCase();
     final color = normalizedRisk.contains('high')
-        ? Colors.red
+        ? AppColors.danger
         : normalizedRisk.contains('medium')
-            ? Colors.orange
-            : Colors.green;
+            ? AppColors.warning
+            : AppColors.success;
 
     return Card(
       elevation: 4,
@@ -477,7 +476,7 @@ class _AIReportScreenState extends State<AIReportScreen> {
                     'Risk Level',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: AppColors.textMuted,
                     ),
                   ),
                   Text(

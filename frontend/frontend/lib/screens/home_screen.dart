@@ -5,6 +5,7 @@ import '../models/goal_model.dart';
 import '../models/user_expense_data.dart';
 import '../utils/ai_insights.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
 import 'ai_chat_screen.dart';
 import 'ai_report_screen.dart';
 import 'history_screen.dart';
@@ -39,6 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _setIndex,
+        backgroundColor: AppColors.surface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textMuted,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -111,6 +115,13 @@ class _HomeTab extends StatelessWidget {
           _ActionRow(onNavigateToGoals: onNavigateToGoals),
           const SizedBox(height: 24),
           const Text(
+            'Spending by Category',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 10),
+          _CategoryBreakdown(),
+          const SizedBox(height: 24),
+          const Text(
             'Recent Transactions',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
@@ -133,17 +144,23 @@ class _BalanceCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF111827), Color(0xFF1F2937)],
-        ),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Wallet Balance',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: AppColors.textMuted),
           ),
           const SizedBox(height: 8),
           Text(
@@ -151,7 +168,7 @@ class _BalanceCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -165,61 +182,56 @@ class _HealthScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: AppState.balance,
-      builder: (context, balance, _) {
-        final report = AIFinancialReport(
-          aiSalary: balance,
-          aiTotalExpense:
-              AppState.categoryTotals.values.fold(0.0, (a, b) => a + b),
-          categoryTotals: AppState.categoryTotals,
-          lastMonthExpense: AppState.monthlySpending.last,
-          goal: balance * 1.2,
-        );
-        final score = report.healthScore;
+    final report = AIFinancialReport(
+      aiSalary: AppState.monthlyIncome,
+      aiTotalExpense: AppState.categoryTotals.values.fold(0.0, (a, b) => a + b),
+      categoryTotals: AppState.categoryTotals,
+      lastMonthExpense: AppState.monthlySpending.last,
+      goal: AppState.monthlyIncome * 1.2,
+    );
+    final score = report.healthScore;
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: const Color(0xFFDCFCE7),
-                child: Text(
-                  '$score',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF15803D),
-                  ),
-                ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: AppColors.primary.withOpacity(0.2),
+            child: Text(
+              '$score',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Health Score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      score >= 70
-                          ? 'Strong balance between spending and savings.'
-                          : 'You have room to improve savings this month.',
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Health Score',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  score >= 70
+                      ? 'Strong balance between spending and savings.'
+                      : 'You have room to improve savings this month.',
+                  style: const TextStyle(color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -240,8 +252,16 @@ class _SparklineCard extends StatelessWidget {
       height: 160,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF111827),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: LineChart(
         LineChartData(
@@ -252,12 +272,12 @@ class _SparklineCard extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: const Color(0xFF38BDF8),
+              color: AppColors.primary,
               barWidth: 3,
               dotData: FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: const Color(0xFF38BDF8).withOpacity(0.2),
+                color: AppColors.primary.withOpacity(0.2),
               ),
             ),
           ],
@@ -342,12 +362,13 @@ class _ActionTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 18),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primary.withOpacity(0.12)),
             ),
             child: Column(
               children: [
-                Icon(icon, size: 28, color: const Color(0xFF111827)),
+                Icon(icon, size: 28, color: AppColors.primary),
                 const SizedBox(height: 8),
                 Text(
                   label,
@@ -374,16 +395,21 @@ class _RecentTransactions extends StatelessWidget {
               .map(
                 (tx) => ListTile(
                   leading: CircleAvatar(
-                    backgroundColor:
-                        tx.isDebit ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                    backgroundColor: tx.isDebit
+                        ? AppColors.danger.withOpacity(0.2)
+                        : AppColors.success.withOpacity(0.2),
                     child: Icon(
                       tx.isDebit ? Icons.arrow_upward : Icons.arrow_downward,
-                      color: tx.isDebit ? Colors.red : Colors.green,
+                      color: tx.isDebit ? AppColors.danger : AppColors.success,
                     ),
                   ),
                   title: Text(tx.title),
-                  subtitle: Text(tx.subtitle),
-                  trailing: Text(tx.isDebit ? '-Rs ${tx.amount}' : '+Rs ${tx.amount}'),
+                  subtitle: Text(
+                    tx.subtitle,
+                    style: const TextStyle(color: AppColors.textMuted),
+                  ),
+                  trailing:
+                      Text(tx.isDebit ? '-Rs ${tx.amount}' : '+Rs ${tx.amount}'),
                 ),
               )
               .toList(),
@@ -393,112 +419,141 @@ class _RecentTransactions extends StatelessWidget {
   }
 }
 
+class _CategoryBreakdown extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final items = AppState.categoryTotals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return Column(
+      children: items
+          .map(
+            (entry) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    entry.key.toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    'Rs ${entry.value.toStringAsFixed(0)}',
+                    style: const TextStyle(color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
 class _AnalyticsTab extends StatelessWidget {
   const _AnalyticsTab();
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: AppState.balance,
-      builder: (context, balance, _) {
-        final report = AIFinancialReport(
-          aiSalary: balance,
-          aiTotalExpense:
-              AppState.categoryTotals.values.fold(0.0, (a, b) => a + b),
-          categoryTotals: AppState.categoryTotals,
-          lastMonthExpense: AppState.monthlySpending.last,
-          goal: balance * 1.2,
-        );
-        final predictedExpense =
-            (report.lastMonthExpense * 0.6) + (report.aiTotalExpense * 0.4);
+    final report = AIFinancialReport(
+      aiSalary: AppState.monthlyIncome,
+      aiTotalExpense: AppState.categoryTotals.values.fold(0.0, (a, b) => a + b),
+      categoryTotals: AppState.categoryTotals,
+      lastMonthExpense: AppState.monthlySpending.last,
+      goal: AppState.monthlyIncome * 1.2,
+    );
+    final predictedExpense =
+        (report.lastMonthExpense * 0.6) + (report.aiTotalExpense * 0.4);
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SummaryCard(
-                title: 'Predicted Next Expense',
-                value: 'Rs ${predictedExpense.round()}',
-                subtitle: 'Based on recent spending trend.',
-                fallbackValue: 'Rs ${report.aiTotalExpense.round()}',
-              ),
-              const SizedBox(height: 12),
-              _SummaryCard(
-                title: 'Risk Level',
-                value: report.riskLevel,
-                subtitle: 'Spending vs savings check.',
-              ),
-              const SizedBox(height: 12),
-              _SummaryCard(
-                title: 'Top Category',
-                value: _topCategory(AppState.categoryTotals),
-                subtitle: 'Highest spending category this month.',
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Generated Insights',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Text(report.buildReport()),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AIReportScreen(
-                        user: UserExpenseData(
-                          name: 'Hritisha',
-                          income: balance,
-                          expenses: AppState.categoryTotals,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.insights),
-                label: const Text('View Full Report'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AIChatScreen()),
-                  );
-                },
-                icon: const Icon(Icons.chat_bubble_outline),
-                label: const Text('Open AI Chat'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const MultiUserInputScreen()),
-                  );
-                },
-                icon: const Icon(Icons.group),
-                label: const Text('Multi-User Analytics'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HistoryScreen()),
-                  );
-                },
-                icon: const Icon(Icons.history),
-                label: const Text('View History'),
-              ),
-            ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SummaryCard(
+            title: 'Predicted Next Expense',
+            value: 'Rs ${predictedExpense.round()}',
+            subtitle: 'Based on recent spending trend.',
+            fallbackValue: 'Rs ${report.aiTotalExpense.round()}',
           ),
-        );
-      },
+          const SizedBox(height: 12),
+          _SummaryCard(
+            title: 'Risk Level',
+            value: report.riskLevel,
+            subtitle: 'Spending vs savings check.',
+          ),
+          const SizedBox(height: 12),
+          _SummaryCard(
+            title: 'Top Category',
+            value: _topCategory(AppState.categoryTotals),
+            subtitle: 'Highest spending category this month.',
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Generated Insights',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 10),
+          Text(report.buildReport()),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AIReportScreen(
+                    user: UserExpenseData(
+                      name: 'Hritisha',
+                      income: AppState.balance.value,
+                      expenses: AppState.categoryTotals,
+                    ),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.insights),
+            label: const Text('View Full Report'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AIChatScreen()),
+              );
+            },
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: const Text('Open AI Chat'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MultiUserInputScreen()),
+              );
+            },
+            icon: const Icon(Icons.group),
+            label: const Text('Multi-User Analytics'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HistoryScreen()),
+              );
+            },
+            icon: const Icon(Icons.history),
+            label: const Text('View History'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -506,7 +561,8 @@ class _AnalyticsTab extends StatelessWidget {
     if (categories.isEmpty) {
       return 'None';
     }
-    final entry = categories.entries.reduce((a, b) => a.value > b.value ? a : b);
+    final entry =
+        categories.entries.reduce((a, b) => a.value > b.value ? a : b);
     return entry.key;
   }
 }
@@ -530,9 +586,9 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.primary.withOpacity(0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,7 +603,10 @@ class _SummaryCard extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
-          Text(subtitle),
+          Text(
+            subtitle,
+            style: const TextStyle(color: AppColors.textMuted),
+          ),
         ],
       ),
     );
@@ -669,18 +728,16 @@ class _GoalsTabState extends State<_GoalsTab> {
                 ? null
                 : ((goal.targetAmount - goal.currentSaved) / monthlySavings)
                     .ceil();
-            final eta = months == null
-                ? 'No savings buffer'
-                : '${months} mo';
+            final eta = months == null ? 'No savings buffer' : '${months} mo';
             final requiredMonthly = goal.requiredMonthlySaving(monthlySavings);
             final isOverSpending = requiredMonthly > monthlySavings;
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: AppColors.primary.withOpacity(0.12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -693,14 +750,18 @@ class _GoalsTabState extends State<_GoalsTab> {
                   Text('Target: Rs ${goal.targetAmount.toStringAsFixed(0)}'),
                   if (goal.targetDate != null) ...[
                     const SizedBox(height: 4),
-                    Text('Target month: ${goal.targetDate!.year}-${goal.targetDate!.month.toString().padLeft(2, '0')}'),
+                    Text(
+                      'Target month: ${goal.targetDate!.year}-${goal.targetDate!.month.toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: AppColors.textMuted),
+                    ),
                   ],
                   const SizedBox(height: 6),
                   LinearProgressIndicator(
                     value: goal.progress,
                     minHeight: 8,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation(Color(0xFF38BDF8)),
+                    backgroundColor: AppColors.background,
+                    valueColor:
+                        const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                   const SizedBox(height: 6),
                   Text('Estimated completion: $eta'),
@@ -710,7 +771,9 @@ class _GoalsTabState extends State<_GoalsTab> {
                       'Required monthly saving: Rs ${requiredMonthly.toStringAsFixed(0)}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: isOverSpending ? Colors.red : Colors.black87,
+                        color: isOverSpending
+                            ? AppColors.danger
+                            : AppColors.textPrimary,
                       ),
                     ),
                     if (isOverSpending)
@@ -718,7 +781,7 @@ class _GoalsTabState extends State<_GoalsTab> {
                         padding: EdgeInsets.only(top: 4),
                         child: Text(
                           'Warning: current spending is too high to hit this goal.',
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: AppColors.danger),
                         ),
                       ),
                   ],

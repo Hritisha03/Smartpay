@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../utils/colors.dart';
+
 class AIChatScreen extends StatefulWidget {
   const AIChatScreen({super.key});
 
@@ -143,8 +145,8 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final align = message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final bubbleColor = message.isUser ? Colors.deepPurple : Colors.grey[300];
-    final textColor = message.isUser ? Colors.white : Colors.black87;
+    final bubbleColor = message.isUser ? AppColors.primary : AppColors.surface;
+    final textColor = message.isUser ? AppColors.background : AppColors.textPrimary;
 
     return Column(
       crossAxisAlignment: align,
@@ -155,6 +157,7 @@ class _MessageBubble extends StatelessWidget {
           decoration: BoxDecoration(
             color: bubbleColor,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.primary.withOpacity(0.12)),
           ),
           child: Text(
             message.text,

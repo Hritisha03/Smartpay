@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_state.dart';
+import '../utils/colors.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -30,13 +31,13 @@ class HistoryScreen extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF1F2),
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFFECACA)),
+                    border: Border.all(color: AppColors.danger.withOpacity(0.4)),
                   ),
                   child: const Text(
                     'Warning: current spending may prevent hitting your goals this month.',
-                    style: TextStyle(color: Color(0xFFB91C1C)),
+                    style: TextStyle(color: AppColors.danger),
                   ),
                 );
               }
@@ -45,7 +46,7 @@ class HistoryScreen extends StatelessWidget {
               return ListTile(
                 leading: Icon(
                   tx.isDebit ? Icons.arrow_upward : Icons.arrow_downward,
-                  color: tx.isDebit ? Colors.red : Colors.green,
+                  color: tx.isDebit ? AppColors.danger : AppColors.success,
                 ),
                 title: Text(tx.title),
                 subtitle: Text(tx.subtitle),
